@@ -1,0 +1,454 @@
+/* Custom Font Import — must be before @import tailwindcss */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;900&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  /* Neo-brutalist Colors */
+  --color-neo-bg: #FFFDF5;
+  --color-neo-black: #000000;
+  --color-neo-accent: #FF6B6B;
+  --color-neo-secondary: #FFD93D;
+  --color-neo-muted: #C4B5FD;
+
+  /* Neo-brutalist Hard Shadows */
+  --shadow-neo-sm: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+  --shadow-neo-md: 8px 8px 0px 0px rgba(0, 0, 0, 1);
+  --shadow-neo-lg: 12px 12px 0px 0px rgba(0, 0, 0, 1);
+  --shadow-neo-xl: 16px 16px 0px 0px rgba(0, 0, 0, 1);
+
+  /* Animations */
+  --animate-spin-slow: spin 8s linear infinite;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; /* iOS momentum scrolling */
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+  }
+  body {
+    background-color: var(--color-neo-bg);
+    color: var(--color-neo-black);
+    font-family: 'Space Grotesk', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+}
+
+/* ============================================
+   DARK MODE  — toggled via .dark on the wrapper
+   ============================================ */
+
+/* Global transition for smooth mode switch */
+.dark-transition,
+.dark-transition *,
+.dark-transition *::before,
+.dark-transition *::after {
+  transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease !important;
+}
+
+.dark {
+  /* --- Base surface & text --- */
+  background-color: #1a1a2e !important;
+  color: #e8e6e3 !important;
+}
+
+.dark body {
+  background-color: #1a1a2e;
+}
+
+/* Cards (bg-white) */
+.dark .neo-card-light {
+  background-color: #16213e !important;
+  border-color: #334155 !important;
+  color: #e8e6e3 !important;
+}
+
+/* Override shadows in dark mode to warm peach */
+.dark [class*="shadow-neo"] {
+  --tw-shadow: 4px 4px 0px 0px #EED9B9 !important;
+  box-shadow: var(--tw-shadow) !important;
+}
+.dark .shadow-neo-md {
+  box-shadow: 8px 8px 0px 0px #EED9B9 !important;
+}
+.dark .shadow-neo-lg {
+  box-shadow: 12px 12px 0px 0px #EED9B9 !important;
+}
+.dark .shadow-neo-sm {
+  box-shadow: 4px 4px 0px 0px #EED9B9 !important;
+}
+
+/* Border overrides */
+.dark .border-black {
+  border-color: #475569 !important;
+}
+
+/* Text overrides */
+.dark .text-neo-black,
+.dark .text-black {
+  color: #e8e6e3 !important;
+}
+
+/* bg-white cards, stat boxes */
+.dark .bg-white {
+  background-color: #16213e !important;
+  color: #e8e6e3 !important;
+}
+
+/* Page background */
+.dark .bg-neo-bg {
+  background-color: #1a1a2e !important;
+}
+
+/* === Accent colors — slightly muted for dark === */
+.dark .bg-neo-accent {
+  background-color: #e55a5a !important;
+}
+.dark .bg-neo-secondary {
+  background-color: #e6c235 !important;
+  color: #ffffff !important;
+}
+.dark .bg-neo-muted {
+  background-color: #7c6cbf !important;
+}
+
+/* Trackr light blue panel — distinct cyan */
+.dark .bg-\[\#DBEAFE\] {
+  background-color: #164e63 !important;
+  color: #e8e6e3 !important;
+}
+
+/* Stats images — invert for dark bg */
+.dark .filter.grayscale img,
+.dark img[alt="GitHub Streak"],
+.dark img[alt="LeetCode Stats"] {
+  filter: invert(0.88) hue-rotate(180deg);
+}
+.dark img[alt="GitHub Streak"]:hover,
+.dark img[alt="LeetCode Stats"]:hover {
+  filter: invert(0.88) hue-rotate(180deg);
+}
+
+/* Footer */
+.dark .bg-neo-black {
+  background-color: #0f0f23 !important;
+}
+.dark footer {
+  border-color: #475569 !important;
+}
+
+/* Certification section */
+.dark .certificate-swiper .bg-white {
+  background-color: #16213e !important;
+  color: #e8e6e3 !important;
+}
+.dark .certificate-swiper .text-black {
+  color: #e8e6e3 !important;
+}
+
+/* Badge text in dark mode — keep readable */
+.dark .bg-white.text-black {
+  background-color: #16213e !important;
+  color: #e8e6e3 !important;
+}
+
+/* All badges should have readable text in dark mode */
+.dark span[class*="bg-white"] {
+  background-color: rgba(30, 41, 59, 0.8) !important;
+  color: #e8e6e3 !important;
+  border-color: #475569 !important;
+}
+
+/* Cert card inner text */
+.dark .certificate-swiper h3,
+.dark .certificate-swiper p {
+  color: #e8e6e3 !important;
+}
+.dark .certificate-swiper .opacity-60 {
+  opacity: 0.7 !important;
+}
+
+/* Experience timeline */
+.dark .border-l-8 {
+  border-color: #475569 !important;
+}
+.dark .border-b-4 {
+  border-color: #475569 !important;
+}
+
+/* Heading underlines still use accent color — keep vibrant */
+.dark .decoration-neo-accent {
+  text-decoration-color: #FF6B6B !important;
+}
+.dark .decoration-neo-secondary {
+  text-decoration-color: #FFD93D !important;
+}
+
+/* Selection colors */
+.dark ::selection {
+  background-color: #FF6B6B;
+  color: white;
+}
+
+/* Cert card shadow tweak */
+.dark .shadow-\[4px_4px_0px_white\] {
+  box-shadow: 4px 4px 0px 0px rgba(100, 100, 140, 0.35) !important;
+}
+.dark .shadow-\[2px_2px_0px_0px_\#000\] {
+  box-shadow: 2px 2px 0px 0px rgba(100, 100, 140, 0.5) !important;
+}
+
+/* Swiper pagination in dark */
+.dark .certificate-swiper .swiper-pagination-bullet {
+  background: #475569 !important;
+  border-color: #64748b !important;
+}
+.dark .certificate-swiper .swiper-pagination-bullet-active {
+  background: #FF6B6B !important;
+}
+
+/* Links */
+.dark a {
+  color: inherit;
+}
+
+/* Dark mode toggle button */
+.dark-toggle {
+  width: 52px;
+  height: 52px;
+  border: 4px solid #000;
+  background: #FFD93D;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 22px;
+  box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+  transition: all 0.2s ease;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+.dark-toggle:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px rgba(0,0,0,1);
+}
+.dark-toggle:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.dark .dark-toggle {
+  border-color: #475569 !important;
+  background: #16213e !important;
+  box-shadow: 4px 4px 0px 0px rgba(100, 100, 140, 0.35) !important;
+}
+.dark .dark-toggle:hover {
+  box-shadow: 6px 6px 0px 0px rgba(100, 100, 140, 0.35) !important;
+}
+
+/* Muted background opacity tweak */
+.dark .bg-neo-muted\/20 {
+  background-color: rgba(124, 108, 191, 0.2) !important;
+}
+
+/* Links border-bottom in dark */
+.dark .border-b-4.border-black {
+  border-bottom-color: #64748b !important;
+}
+.dark .border-b-4.border-neo-accent {
+  border-bottom-color: #FF6B6B !important;
+}
+
+/* Star icon */
+.dark .fill-neo-secondary {
+  fill: #e6c235 !important;
+}
+.dark .fill-neo-muted {
+  fill: #7c6cbf !important;
+}
+
+/* Remove star white outline in dark mode */
+.dark .stroke-\[3px\] {
+  stroke: transparent !important;
+}
+.dark svg.animate-spin-slow {
+  stroke: transparent !important;
+}
+
+/* ============================================
+   NEO-BRUTALIST TOOLTIPS
+   ============================================ */
+.neo-tooltip {
+  position: relative;
+  display: inline-flex;
+}
+
+.neo-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: #000;
+  color: #FFD93D;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 900;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  padding: 5px 10px;
+  border: 2.5px solid #FFD93D;
+  box-shadow: 3px 3px 0px 0px #FFD93D;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 50;
+}
+
+.neo-tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #FFD93D;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  z-index: 51;
+}
+
+.neo-tooltip:hover::after,
+.neo-tooltip:hover::before {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Dark mode tooltip adjustments */
+.dark .neo-tooltip::after {
+  background: #e8e6e3;
+  color: #1a1a2e;
+  border-color: #1a1a2e;
+  box-shadow: 3px 3px 0px 0px #475569;
+}
+.dark .neo-tooltip::before {
+  border-top-color: #e8e6e3;
+}
+
+/* ============================================
+   SIDE NAVIGATION
+   ============================================ */
+.side-nav {
+  position: fixed;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 900;
+  display: none; /* hidden on mobile */
+}
+
+@media (min-width: 1280px) {
+  .side-nav { display: block; }
+}
+
+.side-nav-track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.side-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Dashed connector line */
+.side-nav-line {
+  width: 2px;
+  height: 28px;
+  border-left: 2.5px dashed rgba(0,0,0,0.35);
+  margin: 0;
+}
+.dark .side-nav-line {
+  border-left-color: rgba(232,230,227,0.35);
+}
+
+/* The dot button */
+.side-nav-dot {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid #000;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.side-nav-dot:hover {
+  transform: scale(1.3);
+  box-shadow: 3px 3px 0px 0px #000;
+}
+.side-nav-dot.active {
+  background: #FF6B6B;
+  border-color: #000;
+  box-shadow: 3px 3px 0px 0px #000;
+  transform: scale(1.15);
+}
+
+/* Label — hidden by default, slides in on hover */
+.side-nav-label {
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-6px);
+  background: #000;
+  color: #FFD93D;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border: 2px solid #FFD93D;
+  box-shadow: 2px 2px 0px 0px #FFD93D;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.side-nav-dot:hover .side-nav-label,
+.side-nav-dot.active:hover .side-nav-label {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* Dark mode dot */
+.dark .side-nav-dot {
+  border-color: #e8e6e3;
+}
+.dark .side-nav-dot:hover {
+  box-shadow: 3px 3px 0px 0px rgba(232,230,227,0.5);
+}
+.dark .side-nav-dot.active {
+  background: #FF6B6B;
+  border-color: #e8e6e3;
+  box-shadow: 3px 3px 0px 0px rgba(232,230,227,0.5);
+}
+.dark .side-nav-label {
+  background: #e8e6e3;
+  color: #1a1a2e;
+  border-color: #1a1a2e;
+  box-shadow: 2px 2px 0px 0px #475569;
+}
