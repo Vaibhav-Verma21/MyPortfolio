@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://Vaibhav-Verma21.github.io/YOUR_REPO_NAME",
+  "homepage": "https://Vaibhav-Verma21.github.io/MyPortfolio",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

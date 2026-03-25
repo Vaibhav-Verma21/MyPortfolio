@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Github, Mail, Linkedin, ExternalLink, Award, Code2, Briefcase, GraduationCap, Star, Layers, Database, Wrench, Cloud, LayoutTemplate, Cpu, Users } from 'lucide-react';
-import mypic from './assets/mypic.jpeg';
+import mypic from './assets/image.png';
 import barcCert from './assets/Certificates/BARCCertificate.jpeg';
 import biCert from './assets/Certificates/Summer Training Completion Certificate Vaibhav Verma_page-0001.jpg';
 import cvPdf from './assets/Certificates/VVGenCV2.pdf';
