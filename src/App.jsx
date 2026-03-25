@@ -142,6 +142,34 @@ const MiniPong = () => {
   useEffect(() => {
     if (!isPlaying) return;
 
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AudioContext();
+
+    const playBounceSound = (isPaddle) => {
+      try {
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        oscillator.type = isPaddle ? 'square' : 'sine';
+        oscillator.frequency.setValueAtTime(isPaddle ? 600 : 400, audioCtx.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(isPaddle ? 800 : 600, audioCtx.currentTime + 0.1);
+        
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.1);
+      } catch (e) {
+        // ignore audio errors
+      }
+    };
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -185,8 +213,14 @@ const MiniPong = () => {
       ball.y += ball.dy;
 
       // Wall collision (left, right, top)
-      if (ball.x + ball.radius > canvas.width || ball.x - ball.radius < 0) ball.dx = -ball.dx;
-      if (ball.y - ball.radius < 0) ball.dy = -ball.dy;
+      if (ball.x + ball.radius > canvas.width || ball.x - ball.radius < 0) {
+        ball.dx = -ball.dx;
+        playBounceSound(false);
+      }
+      if (ball.y - ball.radius < 0) {
+        ball.dy = -ball.dy;
+        playBounceSound(false);
+      }
 
       // Paddle collision
       if (
@@ -204,6 +238,7 @@ const MiniPong = () => {
         if (Math.abs(ball.dy) < 8) ball.dy *= 1.05;
 
         setScore(s => s + 1);
+        playBounceSound(true);
       }
 
       // Game over (falls off bottom)
@@ -277,8 +312,21 @@ const MiniPong = () => {
     setIsPlaying(true);
   };
 
+  useEffect(() => {
+    // Replaced global Enter listener with container focus logic
+  }, []);
+
   return (
-    <div className="border-4 border-black bg-neo-muted p-4 shadow-neo-md w-full max-w-[320px] transition-all flex flex-col items-center">
+    <div 
+      className="border-4 border-black bg-neo-muted p-4 shadow-neo-md w-full max-w-[320px] transition-all flex flex-col items-center outline-none focus:ring-4 focus:ring-neo-accent"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' && !isPlaying) {
+          e.preventDefault();
+          startGame();
+        }
+      }}
+    >
       <div className="w-full flex justify-between items-center mb-3 font-black uppercase text-sm tracking-widest px-1">
         <span>Score: {score}</span>
         <span>High: {highScore}</span>
@@ -305,7 +353,7 @@ const MiniPong = () => {
               {gameOver ? 'Play Again' : 'Play Pong'}
             </button>
             <p className="text-[10px] font-bold uppercase mt-3 opacity-50 text-center leading-tight">
-              Mouse, Touch, or<br />Arrows to move
+              Press ENTER to Play<br />Mouse, Touch, or Arrows to move
             </p>
           </div>
         )}
@@ -806,6 +854,18 @@ export default function Portfolio() {
                 <h3 className="text-xl font-black uppercase">B.Tech in CSE</h3>
               </div>
               <p className="font-bold">Lovely Professional University, Since Aug 2023</p>
+            </NeoCard>
+            <NeoCard bgColor="bg-neo-muted/20">
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="text-xl font-black uppercase">Intermediate</h3>
+              </div>
+              <p className="font-bold">Teens World Corporate School, Boisar, Maharashtra • Apr’ 2021 – Mar’ 2022</p>
+            </NeoCard>
+            <NeoCard bgColor="bg-neo-muted/20">
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="text-xl font-black uppercase">Matriculation</h3>
+              </div>
+              <p className="font-bold">Atomic Energy Central School – 2, Tarapur, Maharashtra • Apr’ 2019 – Mar’ 2020</p>
             </NeoCard>
           </div>
         </section>
