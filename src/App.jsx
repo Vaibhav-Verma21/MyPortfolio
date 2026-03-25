@@ -131,6 +131,189 @@ const SideNav = () => {
   );
 };
 
+/* ── Mini Pong Game (Experimental) ── */
+const MiniPong = () => {
+  const canvasRef = useRef(null);
+  const [score, setScore] = useState(0);
+  const [highScore, setHighScore] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+
+  useEffect(() => {
+    if (!isPlaying) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+
+    let ball = { x: canvas.width / 2, y: 30, dx: 3.5, dy: 3.5, radius: 7 };
+    let paddle = { x: canvas.width / 2 - 35, y: canvas.height - 20, width: 70, height: 10 };
+
+    let rightPressed = false;
+    let leftPressed = false;
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw ball
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+      ctx.fillStyle = '#FF6B6B';
+      ctx.fill();
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.closePath();
+
+      // Draw paddle
+      ctx.beginPath();
+      ctx.rect(paddle.x, paddle.y, paddle.width, paddle.height);
+      ctx.fillStyle = '#FFD93D';
+      ctx.fill();
+      ctx.stroke();
+      ctx.closePath();
+
+      // Logic - Keyboard movement
+      if (rightPressed) {
+        paddle.x = Math.min(paddle.x + 5, canvas.width - paddle.width);
+      } else if (leftPressed) {
+        paddle.x = Math.max(paddle.x - 5, 0);
+      }
+
+      ball.x += ball.dx;
+      ball.y += ball.dy;
+
+      // Wall collision (left, right, top)
+      if (ball.x + ball.radius > canvas.width || ball.x - ball.radius < 0) ball.dx = -ball.dx;
+      if (ball.y - ball.radius < 0) ball.dy = -ball.dy;
+
+      // Paddle collision
+      if (
+        ball.y + ball.radius > paddle.y &&
+        ball.y - ball.radius < paddle.y + paddle.height &&
+        ball.x > paddle.x &&
+        ball.x < paddle.x + paddle.width
+      ) {
+        ball.dy = -ball.dy;
+        // Shift ball slightly up to prevent clipping
+        ball.y = paddle.y - ball.radius;
+
+        // Slightly increase speed
+        if (Math.abs(ball.dx) < 8) ball.dx *= 1.05;
+        if (Math.abs(ball.dy) < 8) ball.dy *= 1.05;
+
+        setScore(s => s + 1);
+      }
+
+      // Game over (falls off bottom)
+      if (ball.y + ball.radius > canvas.height) {
+        setIsPlaying(false);
+        setGameOver(true);
+        return;
+      }
+
+      animationFrameId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    // Mouse Controls
+    const handleMouseMove = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      let scaleX = canvas.width / rect.width;
+      let mouseX = (e.clientX - rect.left) * scaleX;
+      let newPaddleX = mouseX - paddle.width / 2;
+      if (newPaddleX < 0) newPaddleX = 0;
+      if (newPaddleX + paddle.width > canvas.width) newPaddleX = canvas.width - paddle.width;
+      paddle.x = newPaddleX;
+    };
+
+    // Touch Controls
+    const handleTouchMove = (e) => {
+      // Prevent scrolling
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      let scaleX = canvas.width / rect.width;
+      let touchX = (touch.clientX - rect.left) * scaleX;
+      let newPaddleX = touchX - paddle.width / 2;
+      if (newPaddleX < 0) newPaddleX = 0;
+      if (newPaddleX + paddle.width > canvas.width) newPaddleX = canvas.width - paddle.width;
+      paddle.x = newPaddleX;
+    };
+
+    // Smooth Keyboard Controls
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowRight') rightPressed = true;
+      if (e.key === 'ArrowLeft') leftPressed = true;
+    };
+    const handleKeyUp = (e) => {
+      if (e.key === 'ArrowRight') rightPressed = false;
+      if (e.key === 'ArrowLeft') leftPressed = false;
+    };
+
+    canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      canvas.removeEventListener('mousemove', handleMouseMove);
+      canvas.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [isPlaying]);
+
+  useEffect(() => {
+    if (gameOver && score > highScore) setHighScore(score);
+  }, [gameOver, score, highScore]);
+
+  const startGame = () => {
+    setScore(0);
+    setGameOver(false);
+    setIsPlaying(true);
+  };
+
+  return (
+    <div className="border-4 border-black bg-neo-muted p-4 shadow-neo-md w-full max-w-[320px] transition-all flex flex-col items-center">
+      <div className="w-full flex justify-between items-center mb-3 font-black uppercase text-sm tracking-widest px-1">
+        <span>Score: {score}</span>
+        <span>High: {highScore}</span>
+      </div>
+
+      <div className="relative w-full border-4 border-black shadow-neo-sm overflow-hidden bg-white">
+        {/* Game Area */}
+        <canvas
+          ref={canvasRef}
+          width={280}
+          height={200}
+          className="w-full h-auto cursor-none bg-[radial-gradient(#e5e7eb_1.5px,transparent_1.5px)] [background-size:16px_16px]"
+          style={{ touchAction: 'none' }}
+        />
+
+        {/* Overlay */}
+        {!isPlaying && (
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center p-4">
+            {gameOver && <p className="font-black text-neo-accent uppercase text-xl mb-2 animate-bounce flex items-center gap-2">Game Over</p>}
+            <button
+              onClick={startGame}
+              className="w-full border-4 border-black bg-neo-accent text-white font-black uppercase py-2 shadow-neo-sm hover:-translate-y-1 hover:shadow-neo-md active:translate-y-[2px] active:shadow-none transition-all tracking-widest"
+            >
+              {gameOver ? 'Play Again' : 'Play Pong'}
+            </button>
+            <p className="text-[10px] font-bold uppercase mt-3 opacity-50 text-center leading-tight">
+              Mouse, Touch, or<br />Arrows to move
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export default function Portfolio() {
   const [carouselWidth, setCarouselWidth] = useState(0);
   const carouselRef = useRef(null);
@@ -194,7 +377,7 @@ export default function Portfolio() {
       {/* --- HERO SECTION --- */}
       <header id="hero" className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 mb-20 pt-10">
         <div className="lg:col-span-8 flex flex-col justify-center">
-          <Badge text="Available for Internships" color="bg-neo-muted" rotate="-rotate-2" className="w-fit mb-6" />
+          <Badge text="Hi there! 👋" color="bg-neo-muted" rotate="-rotate-2" className="w-fit mb-6 !px-8" />
           <h1 className="text-6xl md:text-8xl font-black uppercase leading-none mb-6">
             I'M <span className="text-neo-accent">Vaibhav</span> <br />
             <span className="bg-neo-secondary px-4 border-4 border-black inline-block rotate-1">Verma</span>
@@ -227,8 +410,6 @@ export default function Portfolio() {
               <img src={mypic} alt="Vaibhav Verma" className="w-full h-full object-cover" />
             </div>
           </div>
-          {/* Decorative Star */}
-          <Star className="absolute top-0 left-4 lg:-top-6 lg:-left-6 w-16 h-16 fill-neo-secondary stroke-[3px] animate-spin-slow" />
         </div>
       </header>
 
@@ -240,7 +421,7 @@ export default function Portfolio() {
             <h2 className="text-4xl font-black uppercase mb-8 underline decoration-neo-accent decoration-8 underline-offset-4">About Me</h2>
             <NeoCard className="leading-relaxed text-lg font-bold">
               I’m a Computer Science student who sees web development as more than just code—it's a creative medium. As a Full-Stack Developer, I enjoy crafting experiences that combine clean functionality with thoughtful design. Whether it’s building interactive interfaces, optimizing performance, or experimenting with unconventional ideas, I aim to create products that stand out.<br /><br />
-              I’m driven by curiosity, constantly learning new tools and technologies, and turning ideas into real, usable experiences.For me, development isn’t just about making things work—it’s about making them feel right.            </NeoCard>
+              I’m driven by curiosity, constantly learning new tools and technologies, and turning ideas into real, usable experiences. For me, development isn’t just about making things work—it’s about making them feel right.            </NeoCard>
           </div>
         </section>
 
@@ -274,7 +455,7 @@ export default function Portfolio() {
                 <h3 className="text-xl font-black uppercase leading-none">Programming<br />Languages</h3>
               </div>
               <div className="flex flex-wrap gap-2 mt-auto">
-                {['C/C++', 'Java', 'Python', 'JavaScript', 'PHP'].map(s => <Badge key={s} text={s} color="bg-neo-muted border-black text-black" />)}
+                {['C/C++', 'Java', 'JavaScript', 'PHP', 'Python'].map(s => <Badge key={s} text={s} color="bg-neo-muted border-black text-black" />)}
               </div>
             </NeoCard>
 
@@ -284,7 +465,7 @@ export default function Portfolio() {
                 <h3 className="text-xl font-black uppercase leading-none">Backend &<br />Frameworks</h3>
               </div>
               <div className="flex flex-wrap gap-2 mt-auto">
-                {['Node.js', 'Express', 'Yii', 'PyTorch'].map(s => <Badge key={s} text={s} color="bg-white border-black text-black" />)}
+                {['Express', 'LLM Integration', 'Node.js', 'PyTorch', 'Yii'].map(s => <Badge key={s} text={s} color="bg-white border-black text-black" />)}
               </div>
             </NeoCard>
 
@@ -294,7 +475,7 @@ export default function Portfolio() {
                 <h3 className="text-xl font-black uppercase leading-none">Databases</h3>
               </div>
               <div className="flex flex-wrap gap-2 mt-auto">
-                {['SQL', 'MongoDB', 'MySQL'].map(s => <Badge key={s} text={s} color="bg-white border-black text-black" />)}
+                {['MongoDB', 'MySQL', 'SQL'].map(s => <Badge key={s} text={s} color="bg-white border-black text-black" />)}
               </div>
             </NeoCard>
 
@@ -304,7 +485,7 @@ export default function Portfolio() {
                 <h3 className="text-xl font-black uppercase leading-none">Tools &<br />Platforms</h3>
               </div>
               <div className="flex flex-wrap gap-2 mt-auto">
-                {['VS Code', 'Figma', 'Postman', 'LaTeX'].map(s => <Badge key={s} text={s} color="bg-white border-black text-black" />)}
+                {['Figma', 'LaTeX', 'Postman', 'VS Code'].map(s => <Badge key={s} text={s} color="bg-white border-black text-black" />)}
               </div>
             </NeoCard>
 
@@ -314,7 +495,7 @@ export default function Portfolio() {
                 <h3 className="text-xl font-black uppercase leading-none text-white">Cloud &<br />Deployment</h3>
               </div>
               <div className="flex flex-wrap gap-2 mt-auto">
-                {['Git', 'GitHub', 'Linux', 'Vercel', 'Netlify'].map(s => <Badge key={s} text={s} color="bg-black border-black text-white" />)}
+                {['Git', 'GitHub', 'Linux', 'Netlify', 'Vercel'].map(s => <Badge key={s} text={s} color="bg-black border-black text-white" />)}
               </div>
             </NeoCard>
 
@@ -324,7 +505,7 @@ export default function Portfolio() {
                 <h3 className="text-xl font-black uppercase leading-none">Frontend /<br />Web Tech</h3>
               </div>
               <div className="flex flex-wrap gap-2 mt-auto">
-                {['HTML/CSS', 'React.js', 'Tailwind'].map(s => <Badge key={s} text={s} color="bg-neo-secondary border-black text-black" />)}
+                {['HTML/CSS', 'Next.js', 'Phaser.js', 'React.js', 'Tailwind'].map(s => <Badge key={s} text={s} color="bg-neo-secondary border-black text-black" />)}
               </div>
             </NeoCard>
 
@@ -334,7 +515,7 @@ export default function Portfolio() {
                 <h3 className="text-xl font-black uppercase leading-none">Core<br />Concepts</h3>
               </div>
               <div className="flex flex-wrap gap-2 mt-auto">
-                {['DSA', 'OOP', 'DBMS', 'OS'].map(s => <Badge key={s} text={s} color="bg-white border-black text-black" />)}
+                {['DBMS', 'DSA', 'OOP', 'OS'].map(s => <Badge key={s} text={s} color="bg-white border-black text-black" />)}
               </div>
             </NeoCard>
 
@@ -637,10 +818,10 @@ export default function Portfolio() {
           Let's Connect!
         </h2>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-12 items-start">
 
-          {/* Left — contact info */}
-          <div className="space-y-8">
+          {/* Left — contact info (Desktop: Col 1 Row 1) */}
+          <div className="space-y-8 lg:col-start-1 lg:row-start-1 w-full">
             <a
               href="mailto:vaibhavverma2115@gmail.com"
               className="flex items-center gap-5 group"
@@ -683,8 +864,8 @@ export default function Portfolio() {
             </a>
           </div>
 
-          {/* Right — hand-drawn form box */}
-          <div className="relative">
+          {/* Right — hand-drawn form box (Desktop: Col 2 Row 1 spans to Row 2) */}
+          <div className="relative lg:col-start-2 lg:row-start-1 lg:row-span-2 w-full">
             {/* SVG hand-drawn border */}
             <svg
               className="absolute inset-0 w-full h-full"
@@ -713,17 +894,31 @@ export default function Portfolio() {
             </svg>
 
             <form
-              action="https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse"
-              method="POST"
-              target="_blank"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const form = e.target;
+                const data = new FormData(form);
+                fetch("https://docs.google.com/forms/d/e/1FAIpQLSfWVxN8JOL6BQB7QwMrR0cd-MhUXdEAMjuZdNYX4avBmgjIUA/formResponse", {
+                  method: "POST",
+                  mode: "no-cors",
+                  body: data
+                }).then(() => {
+                  alert("Message sent! Thanks for reaching out.");
+                  form.reset();
+                }).catch(err => {
+                  console.error(err);
+                  alert("Something went wrong. Please try again.");
+                });
+              }}
               className="relative z-10 p-8 md:p-10 space-y-6"
             >
               <div>
                 <label className="block font-black uppercase text-sm tracking-widest mb-2">Your Name</label>
                 <input
                   type="text"
-                  name="entry.NAME_FIELD_ID"
+                  name="entry.1608146007"
                   placeholder="Scribble here…"
+                  required
                   className="w-full border-b-4 border-black bg-transparent font-bold text-base py-2 px-1 outline-none placeholder:opacity-40 focus:border-neo-accent transition-colors"
                 />
               </div>
@@ -731,9 +926,10 @@ export default function Portfolio() {
               <div>
                 <label className="block font-black uppercase text-sm tracking-widest mb-2">Message</label>
                 <textarea
-                  name="entry.MESSAGE_FIELD_ID"
+                  name="entry.729502842"
                   rows={5}
                   placeholder="What's on your mind?"
+                  required
                   className="w-full border-b-4 border-black bg-transparent font-bold text-base py-2 px-1 outline-none placeholder:opacity-40 focus:border-neo-accent transition-colors resize-none"
                 />
               </div>
@@ -746,13 +942,19 @@ export default function Portfolio() {
               </button>
             </form>
           </div>
+
+          {/* Experimental Game Box (Desktop: Col 1 Row 2) */}
+          <div className="lg:col-start-1 lg:row-start-2 w-full flex lg:justify-start justify-center">
+            <MiniPong />
+          </div>
+
         </div>
       </section>
 
       {/* --- FOOTER --- */}
       <footer className="border-t-8 border-black bg-neo-black text-white p-8 mt-4">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="font-black uppercase tracking-widest opacity-60 text-sm">© 2025 Vaibhav Verma — Handcrafted with raw energy &amp; Neo-brutalism.</p>
+          <p className="font-black uppercase tracking-widest opacity-60 text-sm">Made by Vaibhav Verma</p>
           <div className="flex gap-4">
             <a href="https://github.com/Vaibhav-Verma21" target="_blank" rel="noreferrer"><Github className="w-6 h-6 hover:text-neo-secondary transition-colors" /></a>
             <a href="https://www.linkedin.com/in/vaibhav2101/" target="_blank" rel="noreferrer"><Linkedin className="w-6 h-6 hover:text-neo-secondary transition-colors" /></a>
